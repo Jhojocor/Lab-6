@@ -1,60 +1,65 @@
 import { AttributeButton } from "../Button/Button";
-import styles from './styles.css'
+import { AttributeFigure } from "../figure/figure";
 
-export enum AttributeCard{
-    "categories" = "categories"
+export enum AttributeCard {
+    "name" = "name",
+    "imageUrl" = "imageUrl",
+    "btn_text" = "btn_text"
 }
 
 export default class Card extends HTMLElement{
-    categories: string = "";
+    name: string = "";
+    imageUrl: string = "";
+    btn_text: string = "";
 
     static get observedAttributes(){
-        const attrs: Record<AttributeCard, null> = {
-            categories:null
+        const attrs: Record <AttributeCard,null> = {
+            name: null,
+            imageUrl: null, 
+            btn_text: null
         }
         return Object.keys(attrs);
     }
 
     attributeChangedCallback(
         propName: AttributeCard,
-        oldValue: unknown,
+        _: unknown,
         newValue: string
-    ){
-        switch(propName){
-            default:
-            this[propName] = newValue;
-            break;
+        ) {
+            switch (propName) {
+                default:
+                this[propName] = newValue;
+                break;
+            }
+            
+            this.render();
         }
-        this.render();
-    }
+        constructor(){
+            super();
+            this.attachShadow({mode: 'open'});
+        }
 
-    constructor(){
-        super();
-        this.attachShadow({mode: "open"})
-    }
+        connectedCallback(){
+            this.render();
+        }
 
-    connectedCallback(){
-        this.render();
-    }
+        render(){
+            if(this.shadowRoot) this.shadowRoot.innerHTML = '';
 
-    render(){
-        if(this.shadowRoot) this.shadowRoot.innerHTML = ``;
+            const container = this.ownerDocument.createElement('section');
 
-        const section = this.ownerDocument.createElement('section');
-        const container = this.ownerDocument.createElement('div');
+            const figure = this.ownerDocument.createElement('app-figure');
+            figure.setAttribute(AttributeFigure.name, this.name);
+            figure.setAttribute(AttributeFigure.imageUrl, this.imageUrl);
 
-        const css = this.ownerDocument.createElement('style');
-        css.innerHTML = styles.toString();
-        this.shadowRoot?.appendChild(css);
+            const button = this.ownerDocument.createElement('app-button');
+            button.setAttribute(AttributeButton.btn_text, this.btn_text);
 
-        const button = this.ownerDocument.createElement('app-button');
-        button.setAttribute(AttributeButton.categories, this.categories);
+            container.appendChild(figure);
+            container.appendChild(button);
 
-        container.appendChild(button);
-
-        this.shadowRoot?.appendChild(container);
-        
-    }
+            this.shadowRoot?.appendChild(container)
+        }
 }
 
-customElements.define('app-card', Card);
+customElements.define('app-card', Card)
